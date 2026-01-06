@@ -84,27 +84,20 @@ export default function App() {
   }, []);
 
   const runSearch = () => {
-    const trimmed = query.trim();
+  const trimmed = query.trim();
 
-    if (trimmed === "") {
-      setError("검색어를 입력해주세요.");
-      setSubmittedQuery("");
-      setCurrentPage(1);
-      return;
-    }
-
-    const len = Array.from(trimmed).length;
-    if (len < 2) {
-      setError("검색어는 공백을 제외하고 2글자 이상 입력해 주세요.");
-      setSubmittedQuery("");
-      setCurrentPage(1);
-      return;
-    }
-
-    setError("");
-    setSubmittedQuery(trimmed);
+  // 공백/빈 문자열만 차단
+  if (trimmed === "") {
+    setError("검색어를 입력해주세요.");
+    setSubmittedQuery("");
     setCurrentPage(1);
-  };
+    return;
+  }
+
+  setError("");
+  setSubmittedQuery(trimmed);
+  setCurrentPage(1);
+};
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") runSearch();
