@@ -1,17 +1,19 @@
 import { useMemo, useState } from "react";
 import { parseCSV, rowsToObjects } from "./lib/csv";
+import "./App.css";
+
 
 const PAGE_SIZE = 10;
 
 const FIELD_OPTIONS = [
-  { value: "서명", label: "서명" },
+  { value: "서명", label: "도서명" },
   { value: "저자", label: "작가명(저자)" },
   { value: "출판사", label: "출판사" },
 ];
 
 const SITE_OPTIONS = [
-  { value: "3", label: "3단지 도서관" },
-  { value: "4", label: "4단지 도서관" },
+  { value: "3", label: "3단지" },
+  { value: "4", label: "4단지" },
 ];
 
 // ✅ public 폴더에 넣은 CSV 파일명만 여기서 관리
@@ -19,6 +21,27 @@ const CSV_BY_SITE = {
   "3": "books_3.csv",
   "4": "books_4.csv",
 };
+
+const LOAN_DAYS_BY_SITE = {
+  "3": 7, // 3단지 1주
+  "4": 14, // 4단지 2주
+};
+
+function addDays(date, days) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function formatKoreanDate(date) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  }).format(date);
+}
+
 
 function normalizeBase(s) {
   return (s ?? "")
@@ -149,6 +172,11 @@ export default function App() {
 
   const hasSearched = submittedQuery.trim() !== "";
 
+  const today = new Date();
+  const loanDays = site ? (LOAN_DAYS_BY_SITE[site] ?? 14) : null;
+  const dueDate = loanDays ? addDays(today, loanDays) : null;
+
+
   return (
     <div className="container">
       <header className="header">
@@ -156,6 +184,21 @@ export default function App() {
           <h1 className="title">
             {site ? `${site}단지작은도서관 장서 검색` : "작은도서관 장서 검색"}
           </h1>
+          {site && dueDate && (
+            <p className="subtitle">
+              오늘({formatKoreanDate(today)}) 대출 시 반납일:{" "}
+              <b>{formatKoreanDate(dueDate)}</b>
+
+              <span className="tooltipWrapper">
+                <span className="tooltipIcon">ⓘ</span>
+                <span className="tooltip">
+                  반납일이 도서관 휴관일인 경우 <br />
+                  그 익일을 반납일로 합니다.
+                </span>
+              </span>
+            </p>
+          )}
+
 
           <p className="subtitle">
             {site
