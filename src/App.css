@@ -31,3 +31,33 @@
 .tooltipWrapper:hover .tooltip {
   opacity: 1;
 }
+
+.footer {
+  margin-top: 32px;
+  padding: 20px 12px;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+.footerLinks {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.footerLink {
+  font-size: 0.9rem;
+  color: #333;
+  text-decoration: none;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+}
+
+.footerCopy {
+  color: #888;
+  font-size: 0.75rem;
+}

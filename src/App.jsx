@@ -184,6 +184,13 @@ export default function App() {
           <h1 className="title">
             {site ? `${site}단지작은도서관 장서 검색` : "작은도서관 장서 검색"}
           </h1>
+          <p className="subtitle">
+            {site
+              ? loading
+                ? "목록을 불러오는 중…"
+                : `총 장서량: ${totalCount.toLocaleString()}권`
+              : "3단지/4단지를 선택한 뒤 검색해 주세요."}
+          </p>
           {site && dueDate && (
             <p className="subtitle">
               오늘({formatKoreanDate(today)}) 대출 시 반납일:{" "}
@@ -198,15 +205,6 @@ export default function App() {
               </span>
             </p>
           )}
-
-
-          <p className="subtitle">
-            {site
-              ? loading
-                ? "목록을 불러오는 중…"
-                : `총 장서량: ${totalCount.toLocaleString()}권`
-              : "3단지/4단지를 선택한 뒤 검색해 주세요."}
-          </p>
         </div>
       </header>
 
@@ -367,10 +365,27 @@ export default function App() {
       </section>
 
       <footer className="footer">
-        <small>
-          정적 사이트(React + Vite) · 데이터: public/books_3.csv / public/books_4.csv
-        </small>
+        <div className="footerLinks">
+          <a
+            href="https://www.instagram.com/hy_lha4_lib/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footerLink"
+          >
+            📷 4단지 작은도서관 인스타그램
+          </a>
+
+          <a
+            href="https://band.us/@hytree4lib"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footerLink"
+          >
+            👥 4단지 작은도서관 밴드
+          </a>
+        </div>
       </footer>
+
     </div>
   );
 }
