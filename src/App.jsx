@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { parseCSV, rowsToObjects } from "./lib/csv";
 import "./App.css";
 
-
 const PAGE_SIZE = 10;
 
 const FIELD_OPTIONS = [
@@ -18,13 +17,13 @@ const SITE_OPTIONS = [
 
 // ✅ public 폴더에 넣은 CSV 파일명만 여기서 관리
 const CSV_BY_SITE = {
-  "3": "books_3.csv",
-  "4": "books_4.csv",
+  3: "books_3.csv",
+  4: "books_4.csv",
 };
 
 const LOAN_DAYS_BY_SITE = {
-  "3": 7, // 3단지 1주
-  "4": 14, // 4단지 2주
+  3: 7, // 3단지 1주
+  4: 14, // 4단지 2주
 };
 
 function addDays(date, days) {
@@ -42,13 +41,8 @@ function formatKoreanDate(date) {
   }).format(date);
 }
 
-
 function normalizeBase(s) {
-  return (s ?? "")
-    .toString()
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
+  return (s ?? "").toString().trim().toLowerCase().replace(/\s+/g, " ");
 }
 
 function normalizeNoSpace(s) {
@@ -71,8 +65,8 @@ export default function App() {
 
   // 단지별 데이터 캐시(한 번 로드하면 재사용)
   const [cache, setCache] = useState({
-    "3": null,
-    "4": null,
+    3: null,
+    4: null,
   });
 
   const books = site ? cache[site] ?? [] : [];
@@ -89,7 +83,10 @@ export default function App() {
 
     const url = `${import.meta.env.BASE_URL}${filename}`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`${filename}를 불러오지 못했습니다. (HTTP ${res.status})`);
+    if (!res.ok)
+      throw new Error(
+        `${filename}를 불러오지 못했습니다. (HTTP ${res.status})`
+      );
 
     const text = await res.text();
     const rows = parseCSV(text);
@@ -101,6 +98,8 @@ export default function App() {
       서명: (o["서명"] ?? "").toString().trim(),
       저자: (o["저자"] ?? "").toString().trim(),
       출판사: (o["출판사"] ?? "").toString().trim(),
+      분류기호: (o["분류기호"] ?? "").toString().trim(),
+      저자기호: (o["저자기호"] ?? "").toString().trim(),
     }));
 
     setCache((prev) => ({ ...prev, [siteValue]: mapped }));
@@ -173,9 +172,8 @@ export default function App() {
   const hasSearched = submittedQuery.trim() !== "";
 
   const today = new Date();
-  const loanDays = site ? (LOAN_DAYS_BY_SITE[site] ?? 14) : null;
+  const loanDays = site ? LOAN_DAYS_BY_SITE[site] ?? 14 : null;
   const dueDate = loanDays ? addDays(today, loanDays) : null;
-
 
   return (
     <div className="container">
@@ -195,12 +193,10 @@ export default function App() {
             <p className="subtitle">
               오늘({formatKoreanDate(today)}) 대출 시 반납일:{" "}
               <b>{formatKoreanDate(dueDate)}</b>
-
               <span className="tooltipWrapper">
                 <span className="tooltipIcon">ⓘ</span>
                 <span className="tooltip">
-                  반납일이 도서관 휴관일인 경우 <br />
-                  그 익일을 반납일로 합니다.
+                  반납일이 도서관 휴관일인 경우 <br />그 익일을 반납일로 합니다.
                 </span>
               </span>
             </p>
@@ -232,7 +228,11 @@ export default function App() {
                     setLoading(true);
                     await loadSiteBooksIfNeeded(next);
                   } catch (err) {
-                    setLoadError(err instanceof Error ? err.message : "알 수 없는 로딩 오류");
+                    setLoadError(
+                      err instanceof Error
+                        ? err.message
+                        : "알 수 없는 로딩 오류"
+                    );
                   } finally {
                     setLoading(false);
                   }
@@ -293,8 +293,8 @@ export default function App() {
             {hasSearched && site ? (
               <>
                 {" "}
-                · 도서관: <b>{site}단지</b> · 검색어: <b>{submittedQuery}</b> · 대상:{" "}
-                <b>{selectedField}</b>
+                · 도서관: <b>{site}단지</b> · 검색어: <b>{submittedQuery}</b> ·
+                대상: <b>{selectedField}</b>
               </>
             ) : (
               <> · 도서관 선택 후 검색어를 입력해 주세요.</>
@@ -311,6 +311,8 @@ export default function App() {
                 <th>서명</th>
                 <th>저자</th>
                 <th>출판사</th>
+                <th>분류번호</th>
+                <th>저자기호</th>
               </tr>
             </thead>
             <tbody>
@@ -326,12 +328,16 @@ export default function App() {
                     <td>{b.서명}</td>
                     <td>{b.저자}</td>
                     <td>{b.출판사}</td>
+                    <td>{b.분류기호}</td>
+                    <td>{b.저자기호}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td colSpan={3} className="empty">
-                    {hasSearched ? "검색 결과가 없습니다." : "도서관을 선택하고 검색해 주세요."}
+                    {hasSearched
+                      ? "검색 결과가 없습니다."
+                      : "도서관을 선택하고 검색해 주세요."}
                   </td>
                 </tr>
               )}
@@ -385,7 +391,6 @@ export default function App() {
           </a>
         </div>
       </footer>
-
     </div>
   );
 }
