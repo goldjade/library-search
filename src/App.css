@@ -61,3 +61,33 @@
   color: #888;
   font-size: 0.75rem;
 }
+
+/* 모바일에서 컬럼을 줄여서 가독성 확보 */
+@media (max-width: 640px) {
+  /* .col-author, */
+  .col-pub {
+    display: none;
+  }
+
+  /* 서명 길어지면 줄바꿈 */
+  .table td:first-child {
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+}
+
+.table td:last-child {
+  white-space: normal;
+}
+/* 청구기호 길면 두줄허용 */
+.table td:last-child {
+  white-space: normal;
+}
+/* 테이블 짝수줄 배경색 */
+.table tbody tr:nth-child(even) {
+  background-color: #f7f7f7;
+}
+
+.table tbody tr:hover {
+  background-color: #ececec;
+}

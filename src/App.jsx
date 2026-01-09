@@ -92,15 +92,21 @@ export default function App() {
     const rows = parseCSV(text);
     const objs = rowsToObjects(rows);
 
-    // CSV 전체 컬럼 중, 검색/표시에 필요한 3개만 사용
-    const mapped = objs.map((o) => ({
-      id: o.__id,
-      서명: (o["서명"] ?? "").toString().trim(),
-      저자: (o["저자"] ?? "").toString().trim(),
-      출판사: (o["출판사"] ?? "").toString().trim(),
-      분류기호: (o["분류기호"] ?? "").toString().trim(),
-      저자기호: (o["저자기호"] ?? "").toString().trim(),
-    }));
+    // CSV 전체 컬럼 중, 검색/표시에 필요한 내용만 사용
+    const mapped = objs.map((o) => {
+      const 분류기호 = (o["분류기호"] ?? "").toString().trim();
+      const 저자기호 = (o["저자기호"] ?? "").toString().trim();
+
+      const 청구기호 = [분류기호, 저자기호].filter(Boolean).join(" ");
+
+      return {
+        id: o.__id,
+        서명: (o["서명"] ?? "").toString().trim(),
+        저자: (o["저자"] ?? "").toString().trim(),
+        출판사: (o["출판사"] ?? "").toString().trim(),
+        청구기호,
+      };
+    });
 
     setCache((prev) => ({ ...prev, [siteValue]: mapped }));
   };
@@ -309,16 +315,15 @@ export default function App() {
             <thead>
               <tr>
                 <th>서명</th>
-                <th>저자</th>
-                <th>출판사</th>
-                <th>분류번호</th>
-                <th>저자기호</th>
+                <th className="col-author">저자</th>
+                <th className="col-pub">출판사</th>
+                <th>청구기호</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={3} className="empty">
+                  <td colSpan={4} className="empty">
                     불러오는 중…
                   </td>
                 </tr>
@@ -326,15 +331,14 @@ export default function App() {
                 pageItems.map((b) => (
                   <tr key={b.id}>
                     <td>{b.서명}</td>
-                    <td>{b.저자}</td>
-                    <td>{b.출판사}</td>
-                    <td>{b.분류기호}</td>
-                    <td>{b.저자기호}</td>
+                    <td className="col-author">{b.저자}</td>
+                    <td className="col-pub">{b.출판사}</td>
+                    <td>{b.청구기호}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={3} className="empty">
+                  <td colSpan={4} className="empty">
                     {hasSearched
                       ? "검색 결과가 없습니다."
                       : "도서관을 선택하고 검색해 주세요."}
