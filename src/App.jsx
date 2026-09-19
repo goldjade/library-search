@@ -15,10 +15,12 @@ const SITE_OPTIONS = [
   { value: "4", label: "4단지" },
 ];
 
-// ✅ public 폴더에 넣은 CSV 파일명만 여기서 관리
-const CSV_BY_SITE = {
-  3: "books_3.csv",
-  4: "books_4.csv",
+const GOOGLE_SHEET_ID = "1bLgsEAx6s_V7bJJY8cJMTvS2bHQbZue1jAO-e9fJgyU";
+
+// 공개 Google Sheets의 각 탭을 CSV 형식으로 불러온다.
+const CSV_URL_BY_SITE = {
+  3: `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&gid=1180448183`,
+  4: `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&gid=1285026582`,
 };
 
 const LOAN_DAYS_BY_SITE = {
@@ -76,16 +78,18 @@ export default function App() {
     if (!siteValue) return;
     if (cache[siteValue]) return;
 
-    const filename = CSV_BY_SITE[siteValue];
-    if (!filename) {
-      throw new Error("CSV 파일 설정이 없습니다. CSV_BY_SITE를 확인해 주세요.");
+    const csvUrl = CSV_URL_BY_SITE[siteValue];
+    if (!csvUrl) {
+      throw new Error(
+        "Google Sheets CSV 설정이 없습니다. CSV_URL_BY_SITE를 확인해 주세요."
+      );
     }
 
-    const url = `${import.meta.env.BASE_URL}${filename}`;
-    const res = await fetch(url);
+    const url = `${csvUrl}&cacheBust=${Date.now()}`;
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok)
       throw new Error(
-        `${filename}를 불러오지 못했습니다. (HTTP ${res.status})`
+        `Google Sheets 장서 목록을 불러오지 못했습니다. (HTTP ${res.status})`
       );
 
     const text = decodeCSV(await res.arrayBuffer());
