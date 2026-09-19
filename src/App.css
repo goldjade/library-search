@@ -37,6 +37,7 @@
   padding: 20px 12px;
   border-top: 1px solid #eee;
   text-align: center;
+  color: #666;
 }
 
 .footerLinks {
@@ -76,10 +77,7 @@
   }
 }
 
-.table td:last-child {
-  white-space: normal;
-}
-/* 청구기호 길면 두줄허용 */
+/* 청구기호 길면 두 줄 허용 */
 .table td:last-child {
   white-space: normal;
 }

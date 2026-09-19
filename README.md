@@ -1,16 +1,44 @@
-# React + Vite
+# 작은도서관 장서 검색
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+3단지와 4단지 작은도서관의 장서를 도서명, 저자, 출판사로 검색하는 React 웹사이트입니다. 장서 목록은 `public` 폴더의 CSV 파일에서 읽으며 별도 서버나 데이터베이스가 필요하지 않습니다.
 
-Currently, two official plugins are available:
+## 주요 기능
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 3단지·4단지 장서 선택 검색
+- 도서명·저자·출판사 검색 및 띄어쓰기 무시
+- 분류기호와 저자기호를 조합한 청구기호 표시
+- 검색 결과 페이지 처리(페이지당 10권)
+- 단지별 대출 기간을 적용한 예상 반납일 표시
+- UTF-8 및 CP949(EUC-KR) CSV 읽기
 
-## React Compiler
+## 실행 방법
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Node.js가 설치된 환경에서 다음 명령을 실행합니다.
 
-## Expanding the ESLint configuration
+```bash
+npm install
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+프로덕션 빌드와 로컬 확인은 다음과 같습니다.
+
+```bash
+npm run build
+npm run preview
+```
+
+## 장서 데이터 갱신
+
+- `public/books_3.csv`: 3단지 장서
+- `public/books_4.csv`: 4단지 장서
+
+CSV에는 `서명`, `저자`, `출판사`, `분류기호`, `저자기호` 헤더가 필요합니다. UTF-8과 CP949 인코딩을 모두 지원합니다.
+
+## 배포
+
+GitHub Pages 배포 경로는 `/library-search/`로 설정되어 있습니다.
+
+```bash
+npm run build
+npm run deploy
+```

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { parseCSV, rowsToObjects } from "./lib/csv";
+import { decodeCSV, parseCSV, rowsToObjects } from "./lib/csv";
 import "./App.css";
 
 const PAGE_SIZE = 10;
@@ -69,7 +69,7 @@ export default function App() {
     4: null,
   });
 
-  const books = site ? cache[site] ?? [] : [];
+  const books = useMemo(() => (site ? cache[site] ?? [] : []), [cache, site]);
   const totalCount = books.length;
 
   const loadSiteBooksIfNeeded = async (siteValue) => {
@@ -88,7 +88,7 @@ export default function App() {
         `${filename}를 불러오지 못했습니다. (HTTP ${res.status})`
       );
 
-    const text = await res.text();
+    const text = decodeCSV(await res.arrayBuffer());
     const rows = parseCSV(text);
     const objs = rowsToObjects(rows);
 

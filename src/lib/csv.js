@@ -45,6 +45,14 @@ export function parseCSV(text) {
   return rows;
 }
 
+export function decodeCSV(arrayBuffer) {
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(arrayBuffer);
+  } catch {
+    return new TextDecoder("euc-kr").decode(arrayBuffer);
+  }
+}
+
 export function stripBom(s) {
   if (!s) return s;
   return s.charCodeAt(0) === 0xfeff ? s.slice(1) : s;
