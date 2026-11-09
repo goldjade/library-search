@@ -21,7 +21,7 @@ button, input { font: inherit; }
 .button { height: 56px; min-width: 130px; border-radius: 12px; border: 1px solid #171f30; background: #171f30; color: #f8f5ed; padding: 0 24px; font-size: 17px; font-weight: 700; cursor: pointer; }
 .button:disabled { opacity: 0.5; cursor: not-allowed; }
 .error { margin-bottom: 12px; padding: 10px 12px; border-radius: 10px; border: 1px solid #d7a6a0; background: #fff4f2; color: #8a3027; font-size: 14px; }
-.statsPanel { display: grid; grid-template-columns: 1fr 1.8fr; margin-top: 24px; padding: 18px 22px; border-radius: 18px; background: #e9e4da; }
+.statsPanel { display: grid; grid-template-columns: 1fr 1.8fr; margin-top: 24px; padding: 18px 22px; border-radius: 18px; background: #f8f5ed; }
 .statItem { display: flex; flex-direction: column; justify-content: center; min-height: 92px; padding: 0 24px; }
 .dueStat { border-left: 1px solid #c8c1b6; }
 .statLabel { color: #4f4d48; font-size: 15px; }
@@ -29,7 +29,7 @@ button, input { font: inherit; }
 .sageIcon { color: #829673; margin-right: 7px; }
 .statValue { margin-top: 6px; font-size: clamp(25px, 3vw, 36px); letter-spacing: -0.04em; }
 .dueNote { margin-top: 6px; color: #4f4d48; font-size: 13px; }
-.resultsSection { padding: 0 0 16px; }
+.resultsSection { padding: 0 24px 16px; }
 .resultsHeading { display: flex; align-items: baseline; gap: 28px; padding: 0 12px 16px; }
 .resultsHeading h2 { margin: 0; font-size: 25px; letter-spacing: -0.03em; }
 .resultsHeading span { color: #66635e; font-size: 14px; }
