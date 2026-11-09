@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { decodeCSV, parseCSV, rowsToObjects } from "./lib/csv";
 import "./App.css";
 
@@ -56,7 +56,7 @@ export default function App() {
   const [loadError, setLoadError] = useState("");
 
   // 단지 선택(필수)
-  const [site, setSite] = useState(""); // "3" | "4" | ""
+  const [site, setSite] = useState("4"); // "3" | "4"
   const [selectedField, setSelectedField] = useState("서명");
 
   const [query, setQuery] = useState("");
@@ -114,6 +114,30 @@ export default function App() {
 
     setCache((prev) => ({ ...prev, [siteValue]: mapped }));
   };
+
+  useEffect(() => {
+    let active = true;
+
+    const preloadDefaultSite = async () => {
+      try {
+        setLoading(true);
+        await loadSiteBooksIfNeeded("4");
+      } catch (e) {
+        if (active) {
+          setLoadError(e instanceof Error ? e.message : "알 수 없는 로딩 오류");
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    preloadDefaultSite();
+    return () => {
+      active = false;
+    };
+    // 첫 화면에서 기본값인 4단지 장서만 한 번 불러온다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const runSearch = async () => {
     const trimmed = query.trim();
@@ -188,52 +212,26 @@ export default function App() {
   return (
     <div className="container">
       <header className="header">
-        <div>
-          <h1 className="title">
-            {site ? `${site}단지작은도서관 장서 검색` : "작은도서관 장서 검색"}
-          </h1>
-          <p className="subtitle">
-            {site
-              ? loading
-                ? "목록을 불러오는 중…"
-                : `총 장서량: ${totalCount.toLocaleString()}권`
-              : "3단지/4단지를 선택한 뒤 검색해 주세요."}
-          </p>
-          {site && dueDate && (
-            <p className="subtitle">
-              오늘({formatKoreanDate(today)}) 대출 시 반납일:{" "}
-              <b>{formatKoreanDate(dueDate)}</b>
-              <span className="tooltipWrapper">
-                <span className="tooltipIcon">ⓘ</span>
-                <span className="tooltip">
-                  반납일이 도서관 휴관일인 경우 <br />그 익일을 반납일로 합니다.
-                </span>
-              </span>
-            </p>
-          )}
-        </div>
+        <h1 className="title">작은도서관 장서 검색</h1>
+        <p className="subtitle">우리 동네 작은도서관의 책을 검색해 보세요.</p>
       </header>
 
-      <section className="card">
+      <section className="searchSection">
         {loadError && <div className="error">로딩 오류: {loadError}</div>}
 
-        <div className="searchRow">
-          <label className="label">
-            도서관 선택(필수)
-            <select
-              className="select"
-              value={site}
-              onChange={async (e) => {
-                const next = e.target.value;
-
-                setSite(next);
-                setSubmittedQuery("");
-                setError("");
-                setLoadError("");
-                setCurrentPage(1);
-
-                // ✅ 단지 선택 즉시 프리로드
-                if (next) {
+        <div className="optionRow">
+          <div className="segment" aria-label="도서관 선택">
+            {SITE_OPTIONS.slice().reverse().map((option) => (
+              <button
+                key={option.value}
+                className={`segmentButton ${site === option.value ? "active" : ""}`}
+                onClick={async () => {
+                  const next = option.value;
+                  setSite(next);
+                  setSubmittedQuery("");
+                  setError("");
+                  setLoadError("");
+                  setCurrentPage(1);
                   try {
                     setLoading(true);
                     await loadSiteBooksIfNeeded(next);
@@ -246,45 +244,39 @@ export default function App() {
                   } finally {
                     setLoading(false);
                   }
-                }
-              }}
-              disabled={loading}
-            >
-              <option value="">선택해주세요</option>
-              {SITE_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </label>
+                }}
+                disabled={loading}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
 
-          <label className="label">
-            검색 대상
-            <select
-              className="select"
-              value={selectedField}
-              onChange={(e) => {
-                setSelectedField(e.target.value);
-                setCurrentPage(1);
-              }}
-              disabled={loading}
-            >
-              {FIELD_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="segment fieldSegment" aria-label="검색 대상">
+            {FIELD_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                className={`segmentButton ${selectedField === option.value ? "active" : ""}`}
+                onClick={() => {
+                  setSelectedField(option.value);
+                  setCurrentPage(1);
+                }}
+                disabled={loading}
+              >
+                {option.label === "작가명(저자)" ? "저자" : option.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-          <label className="label grow">
-            검색어
+        <div className="searchRow">
+          <label className="searchInputWrap">
+            <span className="searchIcon" aria-hidden="true">⌕</span>
             <input
               className="input"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="한 글자 이상 입력 (띄어쓰기 무시)"
+              placeholder="책 제목이나 작가를 입력하세요"
               disabled={loading}
               onKeyDown={(e) => e.key === "Enter" && runSearch()}
             />
@@ -297,23 +289,28 @@ export default function App() {
 
         {error && <div className="error">{error}</div>}
 
-        <div className="metaRow">
-          <div className="meta">
-            검색 결과: <b>{totalResults.toLocaleString()}</b>권
-            {hasSearched && site ? (
-              <>
-                {" "}
-                · 도서관: <b>{site}단지</b> · 검색어: <b>{submittedQuery}</b> ·
-                대상: <b>{selectedField}</b>
-              </>
-            ) : (
-              <> · 도서관 선택 후 검색어를 입력해 주세요.</>
-            )}
+        <div className="statsPanel">
+          <div className="statItem">
+            <span className="statLabel"><span className="accentIcon">▰</span> 총 장서</span>
+            <strong className="statValue">
+              {loading ? "불러오는 중" : `${totalCount.toLocaleString()}권`}
+            </strong>
+          </div>
+          <div className="statItem dueStat">
+            <span className="statLabel"><span className="sageIcon">▣</span> 반납 예정일</span>
+            <strong className="statValue">{dueDate ? formatKoreanDate(dueDate) : "-"}</strong>
+            <span className="dueNote">ⓘ 휴관일인 경우 익일 반납 · 표시된 날짜는 실제 반납일과 다를 수 있습니다.</span>
           </div>
         </div>
       </section>
 
-      <section className="card">
+      <section className="resultsSection">
+        <div className="resultsHeading">
+          <h2>검색 결과 {totalResults.toLocaleString()}권</h2>
+          <span>
+            {site}단지 · 검색어: {hasSearched ? submittedQuery : "전체"} · 검색 대상: {FIELD_OPTIONS.find((item) => item.value === selectedField)?.label}
+          </span>
+        </div>
         <div className="tableWrap">
           <table className="table">
             <thead>
