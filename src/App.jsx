@@ -34,12 +34,10 @@ function addDays(date, days) {
   return d;
 }
 
-function formatKoreanDate(date) {
+function formatShortKoreanDate(date) {
   return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
     month: "long",
     day: "numeric",
-    weekday: "short",
   }).format(date);
 }
 
@@ -197,6 +195,11 @@ export default function App() {
   const totalResults = filtered.length;
   const totalPages = Math.max(1, Math.ceil(totalResults / PAGE_SIZE));
   const safePage = Math.min(Math.max(1, currentPage), totalPages);
+  const firstVisiblePage = Math.max(1, Math.min(safePage - 2, totalPages - 4));
+  const visiblePages = Array.from(
+    { length: Math.min(5, totalPages) },
+    (_, index) => firstVisiblePage + index
+  );
 
   const pageItems = useMemo(() => {
     const start = (safePage - 1) * PAGE_SIZE;
@@ -298,7 +301,7 @@ export default function App() {
           </div>
           <div className="statItem dueStat">
             <span className="statLabel"><span className="sageIcon">▣</span> 반납 예정일</span>
-            <strong className="statValue">{dueDate ? formatKoreanDate(dueDate) : "-"}</strong>
+            <strong className="statValue">{dueDate ? formatShortKoreanDate(dueDate) : "-"}</strong>
             <span className="dueNote">ⓘ 휴관일인 경우 익일 반납 · 표시된 날짜는 실제 반납일과 다를 수 있습니다.</span>
           </div>
         </div>
@@ -357,19 +360,26 @@ export default function App() {
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={safePage === 1}
             >
-              이전
+              ‹
             </button>
 
-            <div className="pagerInfo">
-              {safePage} / {totalPages}
-            </div>
+            {visiblePages.map((page) => (
+              <button
+                key={page}
+                className={`pagerBtn pageNumber ${safePage === page ? "active" : ""}`}
+                onClick={() => setCurrentPage(page)}
+                aria-current={safePage === page ? "page" : undefined}
+              >
+                {page}
+              </button>
+            ))}
 
             <button
               className="pagerBtn"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={safePage === totalPages}
             >
-              다음
+              ›
             </button>
           </div>
         )}
